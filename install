@@ -36,10 +36,10 @@ install_rex_movies() {
     echo
 
     # install dependencies
-    docker run -it --rm -v $(pwd):/app -v ~/.composer:/composer composer/composer
+    docker run -it --rm -v $(pwd):/app -v ~/.composer:/composer composer/composer install
 
     heading "::Startup"
-    movies up
+    ./movies up
     if [ ! "${?}" -eq 0 ]; then
         echo "Unable to start containers"
         return 1
