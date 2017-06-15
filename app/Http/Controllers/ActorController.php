@@ -57,7 +57,7 @@ class ActorController extends Controller
             'dob' => $dob,
             'bio' => $bio,
         ]);
-        echo print_r($_FILES, true);
+        // echo print_r($_FILES, true);
         $resource = new Item($actor, new ActorTransformer());
         return response()->json($this->fractal->createData($resource)->toArray());
     }
