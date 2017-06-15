@@ -48,7 +48,6 @@ install_rex_movies() {
     # prepare database
     docker exec -it "${APP_NAME}_app" php artisan migrate:install
     docker exec -it "${APP_NAME}_app" php artisan migrate:refresh --seed
-    docker exec -it "${APP_NAME}_app" php artisan passport:install
 
     echo "All done"
 
