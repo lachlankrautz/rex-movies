@@ -1,0 +1,17 @@
+/node_modules
+/public/hot
+/public/storage
+/storage/*.key
+/vendor
+/.idea
+/.vagrant
+Homestead.json
+Homestead.yaml
+npm-debug.log
+.env
+/docker/volume/composer
+!/docker/volume/composer/README.md
+/docker/volume/home
+!/docker/volume/home/README.md
+/docker/volume/mysql/data
+!/docker/volume/mysql/data/README.md

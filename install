@@ -1,0 +1,59 @@
+#!/usr/bin/env bash
+
+heading() {
+    local MESSAGE="${1}"
+    tput setaf 2
+    echo -en "${MESSAGE}"
+    tput sgr0
+    echo ""
+}
+
+install_rex_movies() {
+    echo
+    heading "::Downloading"
+    git clone --branch=master https://github.com/lachlankrautz/rex-movies
+    if [ ! "${?}" -eq 0 ]; then
+        echo "Unable to clone project"
+        return 1
+    fi
+
+    cd rex-movies
+
+    chmod 755 movies
+    if [ ! "${?}" -eq 0 ]; then
+        echo "Unable to set executable permissions"
+        return 1
+    fi
+
+    heading "::Config"
+    if [ ! -f "./.env" ]; then
+        cp "./.env.example" "./.env" || return 1
+        echo "Copying .env.example"
+    fi
+    tput setaf 3
+    cat  "./.env"
+    tput sgr0
+    echo
+
+    # install dependencies
+    docker run -it --rm -v $(pwd):/app -v ~/.composer:/composer composer/composer
+
+    heading "::Startup"
+    movies up
+    if [ ! "${?}" -eq 0 ]; then
+        echo "Unable to start containers"
+        return 1
+    fi
+
+    # prepare database
+    docker exec -it "${APP_NAME}_app" php artisan migrate:install
+    docker exec -it "${APP_NAME}_app" php artisan migrate:refresh --seed
+    docker exec -it "${APP_NAME}_app" php artisan passport:install
+
+    echo "All done"
+
+    echo
+    exit 0
+}
+
+install_rex_movies

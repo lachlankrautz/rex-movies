@@ -1,0 +1,67 @@
+version: "3"
+services:
+  web:
+    container_name: "${APP_NAME}_web"
+    image: "nginx:1.13"
+    volumes:
+      - "${PATH_BASE}/docker/volume/home:/root/host"
+      - "${PATH_BASE}:/var/www"
+      - "${PATH_BASE}/docker/volume/nginx:/etc/nginx/conf.d"
+    ports:
+      - "${WEB_PORT}:80"
+    links:
+      - app
+  app:
+    container_name: "${APP_NAME}_app"
+    build:
+      context: "${PATH_BASE}/docker/service/app"
+    volumes:
+      - "${PATH_BASE}/docker/volume/home:/root/host"
+      - "${PATH_BASE}:/var/www"
+      - "${PATH_BASE}/docker/volume/php:/usr/local/etc/php"
+    links:
+      - database
+      - cache
+    environment:
+      - "DB_PORT=${DB_PORT}"
+      - "DB_HOST=database"
+      - "REDIS_PORT=${REDIS_PORT}"
+      - "REDIS_HOST=cache"
+  test:
+    container_name: "${APP_NAME}_test"
+    build:
+      context: "${PATH_BASE}/docker/service/app"
+    volumes:
+      - "${PATH_BASE}/docker/volume/home:/root/host"
+      - "${PATH_BASE}:/var/www"
+      - "${PATH_BASE}/docker/volume/php:/usr/local/etc/php"
+    links:
+      - database
+      - cache
+      - web
+    environment:
+      - "DB_PORT=${DB_PORT}"
+      - "DB_HOST=database"
+      - "REDIS_PORT=${REDIS_PORT}"
+      - "REDIS_HOST=cache"
+  database:
+    container_name: "${APP_NAME}_database"
+    image: mysql:5.6
+    volumes:
+      - "${PATH_BASE}/docker/volume/home:/root/host"
+      - "${PATH_BASE}/docker/volume/mysql/data:/var/lib/mysql"
+      - "${PATH_BASE}/docker/volume/mysql/conf:/etc/mysql"
+    environment:
+      - "MYSQL_USER=${DB_USERNAME}"
+      - "MYSQL_PASSWORD=${DB_PASSWORD}"
+      - "MYSQL_ROOT_PASSWORD=${DB_PASSWORD}"
+      - "MYSQL_DATABASE=${DB_DATABASE}"
+    ports:
+      - "33061:${DB_PORT}"
+  cache:
+    container_name: "${APP_NAME}_cache"
+    image: redis:3.0
+    volumes:
+      - "${PATH_BASE}/docker/volume/home:/root/host"
+    ports:
+      - "63791:${REDIS_PORT}"
